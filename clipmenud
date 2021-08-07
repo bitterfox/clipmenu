@@ -196,8 +196,10 @@ while true; do
         first_line=$(get_first_line "$data")
         debug "New clipboard entry on $selection selection: \"$first_line\""
 
-        cache_file_output="$(date +%s%N) $first_line"
-        filename="$cache_dir/$(cksum <<< "$first_line")"
+        hash=`md5sum <<< "$data" | awk '{print $1}'`
+        debug "hash $hash for '$data'"
+        filename="$cache_dir/$hash"
+        cache_file_output="$(date +%s%N) $hash $first_line"
         last_cache_file_output=$cache_file_output
         last_data=$data
         last_data_sel[$selection]=$data
@@ -228,22 +230,22 @@ while true; do
         # Vacuum up unreferenced clips. They may either have been
         # unreferenced by the above CM_MAX_CLIPS code, or they may be old
         # possible partials.
-        declare -A cksums
+        declare -A hashs
         while IFS= read -r line; do
-            cksum=$(cksum <<< "$line")
-            cksums["$cksum"]="$line"
+            hash=$(awk '{print $1}' <<< "$line")
+            hashs["$hash"]="$line"
         done < <(cut -d' ' -f2- < "$cache_file")
 
         num_vacuumed=0
-        for file in "$cache_dir"/[012346789]*; do
-            cksum=${file##*/}
-            if [[ ${cksums["$cksum"]-_missing_} == _missing_ ]]; then
+        for file in "$cache_dir"/[012346789abcdef]*; do
+            hash=${file##*/}
+            if [[ ${hashs["$hash"]-_missing_} == _missing_ ]]; then
                 debug "Vacuuming due to lack of reference: $file"
                 (( ++num_vacuumed ))
                 rm -- "$file"
             fi
         done
-        unset cksums
+        unset hashs
         info "Vacuumed $num_vacuumed clip files."
     fi
 

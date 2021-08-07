@@ -72,7 +72,7 @@ else
         flock -x -w "$lock_timeout" "$lock_fd" || exit
 
         for match in "${matches[@]}"; do
-            ck=$(cksum <<< "$match")
+            ck=$(awk '{print $1}' <<< "$match")
             rm -f -- "$cache_dir/$ck"
         done
 

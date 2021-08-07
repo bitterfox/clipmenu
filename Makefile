@@ -8,5 +8,5 @@ $(foreach bin,$(REQUIRED_BINS),\
 .PHONY: install
 
 install:
-	install --target "${PREFIX}/bin" -D -m755 clipmenu clipmenud clipdel clipctl
+	install --target "${PREFIX}/bin" -D -m755 clipmenu clipmenud clipdel clipctl clipmenu_fzf
 	install -D -m644 init/clipmenud.service "${PREFIX}/lib/systemd/user/clipmenud.service"
