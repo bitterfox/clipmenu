@@ -158,9 +158,10 @@ while true; do
     fi
 
     if [[ $CM_IGNORE_WINDOW ]] && (( has_xdotool )); then
-        windowname="$(xdotool getactivewindow getwindowname)"
-        if [[ "$windowname" =~ $CM_IGNORE_WINDOW ]]; then
-            debug "ignoring clipboard because windowname \"$windowname\" matches \"${CM_IGNORE_WINDOW}\""
+        window="$(xdotool getwindowfocus)"
+        class="`xprop -id $window WM_CLASS  | awk -F '"' '{print $2}'`"
+        if [[ "$class" =~ $CM_IGNORE_WINDOW ]]; then
+            debug "ignoring clipboard because window class \"$class\" matches \"${CM_IGNORE_WINDOW}\""
             continue
         fi
     fi
